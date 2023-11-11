@@ -14,4 +14,4 @@ provider "openstack" {
   tenant_name = "${var.tenant_name}"
   auth_url    = "https://auth.pscloud.io/v3/"
   region      = "kz-ala-1"
-                     }
+}

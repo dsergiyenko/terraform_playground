@@ -1,0 +1,9 @@
+---
+- name: install haproxy
+  hosts: haproxy
+  become: true
+  gather_facts: true
+  vars:
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+  roles:
+    - roles/haproxy

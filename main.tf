@@ -9,16 +9,7 @@ resource "tls_private_key" "ssh_key" {
 }
 
 data "template_file" "bootstrap_script" {
-  template = file("./bootstrap_other_hosts.sh")
-
-  vars = {
-    private_key = tls_private_key.ssh_key.private_key_pem
-    public_key  = tls_private_key.ssh_key.public_key_openssh
-  }
-}
-
-data "template_file" "bootstrap_scriptansible" {
-  template = file("./bootstrap_ansible_host.sh")
+  template = file("./bootstrap_hosts.sh")
 
   vars = {
     private_key = tls_private_key.ssh_key.private_key_pem
@@ -68,7 +59,7 @@ resource "openstack_networking_floatingip_v2" "haproxy_fip" {
 
 #### Create security group #####
 resource "openstack_compute_secgroup_v2" "security_group" {
-  name             = "sg_name"
+  name             = "sg_all"
   description      = "open all icmp, and ssh"
   
   rule {
@@ -87,7 +78,7 @@ resource "openstack_compute_secgroup_v2" "security_group" {
 }
 
 resource "openstack_compute_secgroup_v2" "security_group_haproxy" {
-  name             = "sg_name"
+  name             = "sg_haproxy"
   description      = "open all icmp, and ssh"
   
   rule {
@@ -152,6 +143,12 @@ resource "openstack_compute_instance_v2" "haproxy" {
 #  user_data = file("bootstrap_other_hosts.sh")
   user_data = data.template_file.bootstrap_script.rendered
 
+  connection {
+    type        = "ssh"
+    user        = "centos"  # or your SSH user
+    private_key = "${tls_private_key.ssh_key.private_key_pem}"
+    host        = "${openstack_networking_floatingip_v2.haproxy_fip.address}"
+  }
                                                    }
 
 #### Create Ansible Instance ####
@@ -176,7 +173,7 @@ resource "openstack_compute_instance_v2" "ansible" {
     delete_on_termination = false
   }
 #  user_data = file("bootstrap_ansible_host.sh")
-  user_data = data.template_file.bootstrap_scriptansible.rendered
+  user_data = data.template_file.bootstrap_script.rendered
 }
 
 #### Assign floating IP ####
@@ -185,3 +182,33 @@ resource "openstack_compute_floatingip_associate_v2" "haproxy_fip_association" {
   instance_id      = openstack_compute_instance_v2.haproxy.id
   fixed_ip         = openstack_compute_instance_v2.haproxy.access_ip_v4
                                                                                 }
+
+
+resource "null_resource" "install_ansible_on_vm" {
+  depends_on = [
+    openstack_compute_instance_v2.haproxy
+  ]
+  provisioner "remote-exec" {
+    inline = [
+    "sudo yum -y install epel-release", 
+    "sudo yum -y install ansible -y", 
+    "echo ansible INSTALLED",
+    "cd /home/centos",
+    "wget https://11459ansible.object.pscloud.io/ansible.zip",
+    "unzip ansible.zip",
+    "cd ansible",
+    "ansible-playbook -i inventory.ini playbooks/bootstrap_hosts.yml"
+    ]
+
+    connection {
+#      host        = "${openstack_networking_floatingip_v2.haproxy_fip.address}"
+      host        = "${openstack_compute_instance_v2.ansible.network.0.fixed_ip_v4}"
+      type        = "ssh"
+      user        = "centos"
+#      private_key = "${file("/home/sergiyenko/.ssh/id_rsa")}"
+      private_key = "${tls_private_key.ssh_key.private_key_pem}"
+      bastion_host = openstack_networking_floatingip_v2.haproxy_fip.address
+    }
+  }
+
+}

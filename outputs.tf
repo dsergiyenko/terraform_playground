@@ -18,8 +18,6 @@ output "private_key" {
 output "public_key" {
   value = <<EOT
   paste in terminal to connect via ssh:
-  ssh -i <(echo "-----BEGIN PUBLIC KEY-----
-  ${tls_private_key.ssh_key.public_key_openssh}
-  -----END PUBLIC KEY-----") centos@${openstack_networking_floatingip_v2.haproxy_fip.address}
+  ssh centos@${openstack_networking_floatingip_v2.haproxy_fip.address}
   EOT
 }
