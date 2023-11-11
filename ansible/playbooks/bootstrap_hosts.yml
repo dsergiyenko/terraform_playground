@@ -2,8 +2,15 @@
 - name: install haproxy
   hosts: haproxy
   become: true
-  gather_facts: true
   vars:
     ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
   roles:
     - roles/haproxy
+
+- name: Configure Apache Web Servers
+  hosts: apache
+  become: true
+  vars:
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+  roles:
+    - roles/apache_webserver

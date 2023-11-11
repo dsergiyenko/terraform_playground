@@ -1,0 +1,18 @@
+---
+- name: Install Apache
+  yum:
+    name: httpd
+    state: present
+
+- name: Copy index.html
+  template:
+    src: index.html.j2
+    dest: /usr/share/httpd/noindex/index.html
+  notify:
+    - restart httpd
+
+- name: Start and enable Apache
+  service:
+    name: httpd
+    state: started
+    enabled: true
