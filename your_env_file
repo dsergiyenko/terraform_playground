@@ -1,0 +1,4 @@
+export TF_VAR_user_name='your_username'
+export TF_VAR_password='your_password'
+export TF_VAR_tenant_name='your_tenant_name'
+export TF_VAR_ssh_public_key='your_ssh_public_key'

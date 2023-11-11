@@ -1,34 +1,11 @@
-#### Configure the OpenStack Provider ####
-terraform {
-required_version = ">= 0.14.0"
-  required_providers {
-    openstack = {
-      source  = "terraform-provider-openstack/openstack"
-      version = "~> 1.53.0"
-    }
-  }
-}
 
-provider "openstack" {
-  user_name   = "***"
-  tenant_name = "***"
-  password    = "***"
-  auth_url    = "https://auth.pscloud.io/v3/"
-  region      = "kz-ala-1"
-                     }
-#### End config block ####
-
-#### Vars ####
-variable "image_id" {
-default = "c4b81bef-07dd-489d-a8d4-36aa2a94dce4"
-}
-#### End vars block####
 #### Import SSH key ####
 resource "openstack_compute_keypair_v2" "ssh" {
   name             = "keypair_name"
-  public_key       = "****"
+  public_key       = "${var.ssh_public_key}"
                                               }
 #### End Import block ####
+
 #### Create Network ####
 resource "openstack_networking_network_v2" "private_network" {
   name             = "network_name"
@@ -65,7 +42,7 @@ resource "openstack_networking_router_interface_v2" "router_interface" {
                                                                        }
 #### End interface block ####
 #### Allocate ip to the project ####
-resource "openstack_networking_floatingip_v2" "instance_fip" {
+resource "openstack_networking_floatingip_v2" "haproxy_fip" {
   pool             = "FloatingIP Net"
                                                              }
 #### End Allocate IP block ####
@@ -100,8 +77,8 @@ resource "openstack_blockstorage_volume_v3" "disk" {
                                                    }
 #### End Create disk block ####
 #### Create Instanse ####
-resource "openstack_compute_instance_v2" "instance" {
-  name             = "instance_name"
+resource "openstack_compute_instance_v2" "haproxy" {
+  name             = "haproxy"
   flavor_name      = "d1.ram2cpu1"
   key_pair         = openstack_compute_keypair_v2.ssh.name
   security_groups  = [openstack_compute_secgroup_v2.security_group.name]
@@ -122,18 +99,9 @@ resource "openstack_compute_instance_v2" "instance" {
                                                    }
 #### End Create Instans block ####
 #### Assign floating IP ####
-resource "openstack_compute_floatingip_associate_v2" "instance_fip_association" {
-  floating_ip      = openstack_networking_floatingip_v2.instance_fip.address
-  instance_id      = openstack_compute_instance_v2.instance.id
-  fixed_ip         = openstack_compute_instance_v2.instance.access_ip_v4
+resource "openstack_compute_floatingip_associate_v2" "haproxy_fip_association" {
+  floating_ip      = openstack_networking_floatingip_v2.haproxy_fip.address
+  instance_id      = openstack_compute_instance_v2.haproxy.id
+  fixed_ip         = openstack_compute_instance_v2.haproxy.access_ip_v4
                                                                                 }
 #### End Assign floadting IP block ####
-
-
-output "instance_ip" {
-    value = openstack_compute_instance_v2.instance.access_ip_v4
-}
-
-output "float_ip" {
-    value = openstack_networking_floatingip_v2.instance_fip.address
-}
