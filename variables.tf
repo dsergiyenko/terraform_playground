@@ -14,7 +14,3 @@ variable "tenant_name" {
 variable "password" {
   description = "OpenStack user password"
 }
-
-variable "ssh_public_key" {
-  description = "ssh key"
-}

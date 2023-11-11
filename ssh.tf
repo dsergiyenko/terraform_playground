@@ -1,8 +1,3 @@
-resource "openstack_compute_keypair_v2" "ssh" {
-  name             = "keypair_name"
-  public_key       = "${var.ssh_public_key}"
-}
-
 resource "tls_private_key" "ssh_key" {
   algorithm = "RSA"
 }
