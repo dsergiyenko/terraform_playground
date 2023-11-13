@@ -1,0 +1,8 @@
+---
+  - name: Add SELinux file context
+    command: semanage fcontext -a -t httpd_sys_content_t "/opt/html/index.html"
+
+  - name: Restore SELinux context recursively
+    command: restorecon -R -v /opt/html/index.html
+    notify:
+      - restart httpd 
