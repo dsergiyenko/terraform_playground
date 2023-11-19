@@ -6,6 +6,8 @@ cat <<EOF >>your_env_file
 export TF_VAR_user_name='your_username'
 export TF_VAR_password='your_password'
 export TF_VAR_tenant_name='your_tenant_name'
+export TF_VAR_haproxy_vm_count='1'
+export TF_VAR_apache_vm_count='3'
 EOF
 
 source your_env_file

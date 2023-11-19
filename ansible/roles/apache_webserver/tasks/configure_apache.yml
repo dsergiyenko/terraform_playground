@@ -9,7 +9,7 @@
 
   - name: Create directory structure
     ansible.builtin.file:
-      path: "/opt/html"
+      path: '{{ apache_webserver__html_dir }}'
       state: directory
       owner: root
       group: root
@@ -27,7 +27,7 @@
   - name: Copy index.html
     template:
       src: index.html.j2
-      dest: /opt/html/index.html
+      dest: '{{ apache_webserver__html_dir }}index.html'
       owner: root
       group: root
       mode: 0644

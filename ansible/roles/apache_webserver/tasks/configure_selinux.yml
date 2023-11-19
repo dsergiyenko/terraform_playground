@@ -1,6 +1,6 @@
 ---
   - name: Add SELinux file context
-    command: semanage fcontext -a -t httpd_sys_content_t "/opt/html/index.html"
+    command: semanage fcontext -a -t httpd_sys_content_t "{{ apache_webserver__html_dir }}index.html"
 
   - name: Restore SELinux context recursively
-    command: restorecon -R -v /opt/html/index.html
+    command: restorecon -R -v {{ apache_webserver__html_dir }}index.html
