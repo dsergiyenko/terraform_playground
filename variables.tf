@@ -14,3 +14,15 @@ variable "tenant_name" {
 variable "password" {
   description = "OpenStack user password"
 }
+
+variable "apache_vm_count" {
+  description = "nubmer of apache vm instances"
+  type = number
+  default = "3"
+}
+
+variable "haproxy_vm_count" {
+  description = "nubmer of haproxy vm instances"
+  type = number
+  default = "1"
+}

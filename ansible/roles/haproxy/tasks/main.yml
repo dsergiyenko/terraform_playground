@@ -1,25 +1,20 @@
 ---
-- name: Install EPEL repository
-  yum:
-    name: epel-release
-    state: present
+- name: Install and configure HAProxy
+  block:
+    - name: Install HAProxy
+      yum:
+        name: haproxy
+        state: present
+      notify:
+        - restart haroxy      
 
-- name: Install HAProxy
-  yum:
-    name: haproxy
-    state: present
-
-- name: Copy HAProxy configuration file
-  template:
-    src: haproxy.cfg.j2
-    dest: /etc/haproxy/haproxy.cfg
-  notify:
-    - restart haproxy
-
-- name: Allow HAProxy in firewall
-  firewalld:
-    port: 80/tcp
-    permanent: true
-    state: enabled
-  notify:
-    - restart firewalld    
+    - name: Copy HAProxy configuration file
+      template:
+        src: haproxy.cfg.j2
+        dest: /etc/haproxy/haproxy.cfg
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+        validate: 'haproxy -c -f %s'
+      notify:
+        - reload haroxy

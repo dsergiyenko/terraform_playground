@@ -1,10 +1,11 @@
 ---
-- name: main.yml | configure journald
+- name: main.yml | install and config Apache
   block:
   - name: Install Apache
     yum:
       name: httpd
       state: present
+    notify: httpd restart
 
   - name: Create directory structure
     ansible.builtin.file:
@@ -21,8 +22,7 @@
       owner: root
       group: root
       mode: 0644
-    notify:
-      - restart httpd
+    notify: httpd reload
 
   - name: Copy index.html
     template:
@@ -31,11 +31,3 @@
       owner: root
       group: root
       mode: 0644
-    notify:
-      - restart httpd
-
-  - name: Start and enable Apache
-    service:
-      name: httpd
-      state: started
-      enabled: true

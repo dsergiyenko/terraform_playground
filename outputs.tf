@@ -1,17 +1,10 @@
-output "haproxy_private_ip" {
-    value = openstack_compute_instance_v2.haproxy.access_ip_v4
-}
-output "ansible_private_ip" {
-    value = openstack_compute_instance_v2.ansible.access_ip_v4
-}
-output "apache1_private_ip" {
-    value = openstack_compute_instance_v2.apache1.access_ip_v4
-}
-output "apache2_private_ip" {
-    value = openstack_compute_instance_v2.apache2.access_ip_v4
-}
-output "apache3_private_ip" {
-    value = openstack_compute_instance_v2.apache3.access_ip_v4
+output "private_ip_addresses" {
+  description = "Private addresses of vms"
+  value = {
+    "haproxy_private_ip_addresses" = [ "${openstack_compute_instance_v2.haproxy.*.network.0.fixed_ip_v4}" ]
+    "apache_private_ip_addresses"  = [ "${openstack_compute_instance_v2.apache.*.network.0.fixed_ip_v4}" ]
+    "ansible_private_ip_addresses" = [ "${openstack_compute_instance_v2.ansible.*.network.0.fixed_ip_v4}" ]
+  }
 }
 
 output "haproxy_float_ip" {
@@ -21,10 +14,6 @@ output "haproxy_float_ip" {
 output "private_key" {
   value = tls_private_key.ssh_key.private_key_pem
   sensitive = true
-}
-
-output "url" {
-  value = "curl ${openstack_networking_floatingip_v2.haproxy_fip.address}"
 }
 
 output "http_url" {

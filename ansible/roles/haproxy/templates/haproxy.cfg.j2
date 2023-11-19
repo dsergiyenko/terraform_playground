@@ -1,12 +1,10 @@
 # Customize the HAProxy configuration as needed
 global
+    maxconn 100
     log /dev/log local0
-    log /dev/log local1 notice
     chroot /var/lib/haproxy
-    stats timeout 30s
     user haproxy
     group haproxy
-    daemon
 
 defaults
     log global
@@ -23,6 +21,7 @@ frontend main
 
 backend app
     balance roundrobin
-    server   apache1  192.168.0.111:80 check
-    server   apache2  192.168.0.112:80 check
-    server   apache3  192.168.0.113:80 check
+{% for item in groups['apache'] %}
+    server apache{{ loop.index }} {{ hostvars[item]['ansible_host'] }}:80 check
+{% endfor %}
+

@@ -40,7 +40,8 @@ resource "openstack_networking_floatingip_v2" "haproxy_fip" {
 
 #### Assign floating IP to Haproxy VM####
 resource "openstack_compute_floatingip_associate_v2" "haproxy_fip_association" {
+  count            = var.haproxy_vm_count
   floating_ip      = openstack_networking_floatingip_v2.haproxy_fip.address
-  instance_id      = openstack_compute_instance_v2.haproxy.id
-  fixed_ip         = openstack_compute_instance_v2.haproxy.access_ip_v4
+  instance_id      = openstack_compute_instance_v2.haproxy[count.index].id
+  fixed_ip         = openstack_compute_instance_v2.haproxy[count.index].access_ip_v4
 }

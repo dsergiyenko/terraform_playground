@@ -4,5 +4,3 @@
 
   - name: Restore SELinux context recursively
     command: restorecon -R -v /opt/html/index.html
-    notify:
-      - restart httpd 

@@ -1,5 +1,12 @@
 ---
-  - name: restart httpd
-    service:
-      name: httpd
-      state: restarted
+- name: httpd reload
+  systemd:
+    name: httpd.service
+    state: reloaded
+
+- name: httpd restart
+  systemd:
+    name: httpd.service
+    state: restarted
+    enabled: true
+
